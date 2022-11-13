@@ -350,7 +350,7 @@ while (WindowShouldClose() == false)
     if (Paused)
     {
        
-        DrawText("DODGE ALL ASTEROIDS", 200, 100, 90, RED);
+        DrawText("DODGE THE ASTEROIDS", 200, 100, 90, RED);
         DrawText("Paused", 650, 500, 60, RED);
         DrawText("CONTROLS:", 200, 360, 60, WHITE);
         DrawText("Move Left = A   Move Right = D", 550, 360, 20, RED);  
