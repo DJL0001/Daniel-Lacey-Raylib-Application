@@ -1,5 +1,4 @@
-// The libraries included - Any packages contained within <..> are developed by C++ developers as a part of the "standard library" language and are included already. Any libraries contained within "...+.h" are external libraries such as raylib. 
-#include <cstdio>
+// The libraries included
 #include "raylib.h"
 
 // This is the boolean to set up the capability of pausing the game. The game starts as paused as the boolean is set to true.
@@ -8,7 +7,6 @@ bool Paused = true;
 // "int main()" is the entry point of the program. It is the function from where the program will start to execute.
 int main()
 {
-
 
 // These are the window dimensions const ints. "const int" variables once declared are never going to change for the duration of the program. They need to be initialised immeditately. 
 const int WindowWidth{1500};
@@ -21,12 +19,11 @@ InitWindow (WindowWidth, WindowHeight, "Asteroid Dodger");
 InitAudioDevice();
 
 // This is the setup for the background music using the Raylib LoadMusicStream function.
-Music backgroundMusic = LoadMusicStream("resources/BackgroundMusic1.wav");
+Music backgroundMusic = LoadMusicStream("resources/BackgroundMusic1.2.wav");
 PlayMusicStream(backgroundMusic);
 
 // This loads in the 2d texture.
 Texture2D starfighter = LoadTexture("resources/StarFighter.png");
-
 
 // These are random number generator functions.
 int randValue = GetRandomValue(1000, 1500);
@@ -38,12 +35,12 @@ int framesCounter = 0;
 int framesCounter2 = 0;
 int framesCounter3 = 0;
 
-// Starfighter Coordinates. It's y and x axis and it's size(length).
+// Starfighter Coordinate variables. It's y and x axis and it's size(length).
 int starfighter_x{750};
 int starfighter_y{700};
 int starfighter_length{40};
 
-// Asteroids x and y coordinates.
+// Asteroids x and y coordinate variables.
 int asteroid_x{750};
 int asteroid_y{-100};
 int asteroid2_x{1450};
@@ -52,27 +49,34 @@ int asteroid3_x{50};
 int asteroid3_y{-2000};
 int asteroid4_x{50};
 int asteroid4_y{-2500};
+int asteroid5_x{50};
+int asteroid5_y{-2500};
 
-// Each asteroids Size.
+// Each asteroids radius size variable.
 int asteroid_radius{50};
 int asteroid2_radius{30};
 int asteroid3_radius{20};
 int asteroid4_radius{60};
+int asteroid5_radius{100};
 
 // This is the asteroids basic movement speed.
 int movement{10};
 
-// Collision detection between asteroid and starfighter.
+// This is establishing the sides of the starfighter so that it can be collided with.
 int l_starfighter_x{starfighter_x};
 int r_starfighter_x{starfighter_x + starfighter_length};
 int u_starfighter_y{starfighter_y};
 int b_starfighter_y{starfighter_y + starfighter_length};
 
+// This is establishing the sides of the asteroid so that it can be collided with.
 int l_asteroid_x{asteroid_x - asteroid_radius};
 int r_asteroid_x{asteroid_x + asteroid_radius};
 int u_asteroid_y{asteroid_y - asteroid_radius};
 int b_asteroid_y{asteroid_y + asteroid_radius};
 
+/* This boolean "collision_with_asteroid" will be made true when bottom of the starfighter touches the top of the asteroid,
+ if the top of the startighter touches the bottom of the asteroid, if the right side of the starfighter touches the left side of the asteroid and
+ if the left side of the starfighter touches the right side of the asteroid. I've repeated this for each asteroid. */
 bool collision_with_asteroid = 
         (b_starfighter_y >= u_asteroid_y) && 
         (u_starfighter_y <= b_asteroid_y) && 
@@ -112,12 +116,18 @@ bool collision_with_asteroid4 =
         (r_starfighter_x >= l_asteroid4_x) && 
         (l_starfighter_x <= r_asteroid4_x);
 
+int l_asteroid5_x{asteroid5_x - asteroid5_radius};
+int r_asteroid5_x{asteroid5_x + asteroid5_radius};
+int u_asteroid5_y{asteroid5_y - asteroid5_radius};
+int b_asteroid5_y{asteroid5_y + asteroid5_radius};
 
+bool collision_with_asteroid5 =
+        (b_starfighter_y >= u_asteroid5_y) && 
+        (u_starfighter_y <= b_asteroid5_y) && 
+        (r_starfighter_x >= l_asteroid5_x) && 
+        (l_starfighter_x <= r_asteroid5_x);
 
  
-        
-
-
 // This is to set the target value that the window updates to 60 frames per second. This stops the player sprite from moving too fast when being controlled.
 SetTargetFPS(60);
 
@@ -126,27 +136,31 @@ while (WindowShouldClose() == false)
 {   // The "if" statement will execute if it is true. If the space bar is pressed successively then the game will pause and unpause.
     if (IsKeyPressed(KEY_SPACE))
         Paused = !Paused;
-
+    
     // This "if" statement states that if the game is not paused then carry out the functions within the braces.
     if (!Paused)
-    {   // The "UpdateMusicStream" function plays the background music.
+    {   
+        // The "UpdateMusicStream" function plays the background music.
         UpdateMusicStream(backgroundMusic);
         
         
-        // If the ship has a collision with an asteroid then "Game Over" text will be drawn onscreen and the starfighter will disappear far out of the window.
-        if (collision_with_asteroid || collision_with_asteroid2 || collision_with_asteroid3 || collision_with_asteroid4)
+        /* If the ship has a collision with an asteroid then "Game Over" text will be
+         drawn onscreen and the starfighter will disappear far out of the window. */
+        if (collision_with_asteroid || collision_with_asteroid2 ||
+             collision_with_asteroid3 || collision_with_asteroid4 ||
+              collision_with_asteroid5)
         {
             // Game over text.
             DrawText("Game Over", 250, 250, 100, RED);
             // Starfighter disappears off screen.
-            starfighter_y = 2000;    
+            starfighter_y = 2000;
         }
 
         // If there is no collision with the asteroid then the "else" statement will activate.
         else
         {
             // Update the edges of the objects. Updates the edges every frame.
-            // Below are the coordinates on the asteroid where it can be collided with by the starfighter. 
+            // Below are the coordinates on the asteroids sides where it can be collided with by the starfighter. 
             l_asteroid_x = asteroid_x - asteroid_radius;
             r_asteroid_x = asteroid_x + asteroid_radius;
             u_asteroid_y = asteroid_y - asteroid_radius;
@@ -166,14 +180,18 @@ while (WindowShouldClose() == false)
             r_asteroid4_x = asteroid4_x + asteroid4_radius;
             u_asteroid4_y = asteroid4_y - asteroid4_radius;
             b_asteroid4_y = asteroid4_y + asteroid4_radius;
+
+            l_asteroid5_x = asteroid5_x - asteroid5_radius;
+            r_asteroid5_x = asteroid5_x + asteroid5_radius;
+            u_asteroid5_y = asteroid5_y - asteroid5_radius;
+            b_asteroid5_y = asteroid5_y + asteroid5_radius;
         
             l_starfighter_x = starfighter_x;
             r_starfighter_x = starfighter_x + starfighter_length;
             u_starfighter_y = starfighter_y;
             b_starfighter_y = starfighter_y + starfighter_length;
             
-            // Below shows all the sides where the starfighter can collide with the asteroid. Updates the collision_with_asteroid
-            
+            // Below shows all the sides where the starfighter can collide with the asteroids. It also updates collision_with_asteroid each frame.
             collision_with_asteroid = 
                 (b_starfighter_y >= u_asteroid_y) && 
                 (u_starfighter_y <= b_asteroid_y) && 
@@ -197,8 +215,13 @@ while (WindowShouldClose() == false)
                 (u_starfighter_y <= b_asteroid4_y) && 
                 (r_starfighter_x >= l_asteroid4_x) && 
                 (l_starfighter_x <= r_asteroid4_x);
-            
-           
+
+            collision_with_asteroid5 = 
+                (b_starfighter_y >= u_asteroid5_y) && 
+                (u_starfighter_y <= b_asteroid5_y) && 
+                (r_starfighter_x >= l_asteroid5_x) && 
+                (l_starfighter_x <= r_asteroid5_x);
+                 
         }
 
         // Every two seconds (120 frames) a new random value is generated in the three "if" statements below.
@@ -219,17 +242,19 @@ while (WindowShouldClose() == false)
         framesCounter3++; 
         if (((framesCounter3/10)%2) == 1)
         {   // This random number generator generates numbers which will be used to dictate the radius of an asteroid when it comes back down again.
-            randValue3 = GetRandomValue(20, 200);
+            randValue3 = GetRandomValue(50, 200);
             framesCounter3 = 0;
         }
 
-        // This line of code starts the movement of the asteroids downwards on the y-axis.
+        // These lines of code start the movement of the asteroids downwards on the y-axis.
         asteroid_y += movement;
         asteroid2_y += movement;
         asteroid3_y += movement;
         asteroid4_y += movement;
+        asteroid5_y += movement;
    
-        // The condition below is if the asteroid is greater than the window height + 400 pixels then the asteroids position and size will be modified by the below instructions in the "if" statement.
+        /* The condition below is if the asteroid is greater than the window height + 400 pixels then the
+         asteroids position and size will be modified by the below instructions in the "if" statement. */
         if (asteroid_y > WindowHeight + 400)
         {   // The asteroids position on the y-axis will change when above the window to a random number chosen by the randValue function.
             asteroid_y = randValue;
@@ -238,8 +263,9 @@ while (WindowShouldClose() == false)
             // The asteroids radius will change when above the window to a random number chosen by the randValue3 function.
             asteroid_radius = randValue3;
         }
-
-        if (asteroid2_y > WindowHeight + 400)
+        /* The condition below is if the asteroid is greater than the window height + 500 pixels then the
+         asteroids position and size will be modified by the below instructions in the "if" statement. */
+        if (asteroid2_y > WindowHeight + 500)
         {   // The asteroids position on the y-axis will change when above the window to a random number chosen by the randValue function.
             asteroid2_y = randValue;
             // The asteroids position on the x-axis will change when above the window to a random number chosen by the randValue2 function.
@@ -247,8 +273,9 @@ while (WindowShouldClose() == false)
             // The asteroids radius will change when above the window to a random number chosen by the randValue3 function.
             asteroid2_radius = randValue3;
         }
-        
-        if (asteroid3_y > WindowHeight + 400)
+        /* The condition below is if the asteroid is greater than the window height + 600 pixels then the
+         asteroids position and size will be modified by the below instructions in the "if" statement. */
+        if (asteroid3_y > WindowHeight + 600)
         {   // The asteroids position on the y-axis will change when above the window to a random number chosen by the randValue function.
             asteroid3_y = randValue;
             // The asteroids position on the x-axis will change when above the window to a random number chosen by the randValue2 function.
@@ -256,8 +283,9 @@ while (WindowShouldClose() == false)
             // The asteroids radius will change when above the window to a random number chosen by the randValue3 function.
             asteroid3_radius = randValue3;
         }
-        
-        if (asteroid4_y > WindowHeight + 400)
+        /* The condition below is if the asteroid is greater than the window height + 700 pixels then the
+         asteroids position and size will be modified by the below instructions in the "if" statement. */
+        if (asteroid4_y > WindowHeight + 700)
         {   // The asteroids position on the y-axis will change when above the window to a random number chosen by the randValue function.
             asteroid4_y = randValue;
             // The asteroids position on the x-axis will change when above the window to a random number chosen by the randValue2 function.
@@ -265,10 +293,18 @@ while (WindowShouldClose() == false)
             // The asteroids radius will change when above the window to a random number chosen by the randValue3 function.
             asteroid4_radius = randValue3;
         }
+        /* The condition below is if the asteroid is greater than the window height + 800 pixels then the
+         asteroids position and size will be modified by the below instructions in the "if" statement. */
+        if (asteroid5_y > WindowHeight + 800)
+        {   // The asteroids position on the y-axis will change when above the window to a random number chosen by the randValue function.
+            asteroid5_y = randValue;
+            // The asteroids position on the x-axis will change when above the window to a random number chosen by the randValue2 function.
+            asteroid5_x = randValue2;
+            // The asteroids radius will change when above the window to a random number chosen by the randValue3 function.
+            asteroid5_radius = randValue3;
+        }
 
-        
-
-        // The if statement checks to see if the "D" key is depressed. 
+        // This if statement checks to see if the "D" key is depressed. 
             if (IsKeyDown(KEY_D) && starfighter_x < 1450) /* "&&" is a logical AND*/
         // If the "D" key is depressed and it is within less than 1450 pixels on the x-axis then the sprite moves to the right on the "X" axis.
             {
@@ -301,16 +337,19 @@ while (WindowShouldClose() == false)
 
     // Starfighter Texture
     DrawTexture(starfighter, starfighter_x - starfighter.width/2, starfighter_y - starfighter.height/2, WHITE);
-     
-    //Asteroids represented by circles
+
+    //I am drawing circles as to represent the asteroids.
      DrawCircle(asteroid_x, asteroid_y, asteroid_radius, BROWN);
-     DrawCircle(asteroid2_x, asteroid2_y, asteroid2_radius, ORANGE);
-     DrawCircle(asteroid3_x, asteroid3_y, asteroid3_radius, PURPLE);
-     DrawCircle(asteroid4_x, asteroid4_y, asteroid4_radius, BLUE);
+     DrawCircle(asteroid2_x, asteroid2_y, asteroid2_radius, GRAY);
+     DrawCircle(asteroid3_x, asteroid3_y, asteroid3_radius, DARKGRAY);
+     DrawCircle(asteroid4_x, asteroid4_y, asteroid4_radius, BEIGE);
+     DrawCircle(asteroid5_x, asteroid5_y, asteroid5_radius, DARKBROWN);
  
+    /* If the game is paused then I make the window display the name of the game,
+     the word "Paused" and the controls for the game. */
     if (Paused)
     {
-        // DrawText
+       
         DrawText("DODGE ALL ASTEROIDS", 200, 100, 90, RED);
         DrawText("Paused", 650, 500, 60, RED);
         DrawText("CONTROLS:", 200, 360, 60, WHITE);
@@ -319,86 +358,14 @@ while (WindowShouldClose() == false)
         DrawText("Pause = SPACE", 590, 420, 20, RED);
     }
         
-       
-
-
+// Enddrawing finalises the render instructions and sends them off to the GPU.
 EndDrawing();
 
 }
 
+// CloseAudioDevice shuts down the audio device.
 CloseAudioDevice();
+
+// Closes the window and unloads the OpenGL context.
 CloseWindow();
 }
-
-
-
-
-/*
- Texture2D background = LoadTexture("resources/starfield1.png");
- Texture2D midground = LoadTexture("resources/starfield2.png");
- Texture2D foreground = LoadTexture("resources/starfield3.png");
-
-    float scrollingBack = 0.0f;
-    float scrollingMid = 0.0f;
-    float scrollingFore = 0.0f;
-*/
-
-// =====================================================================================================PARALLAX EXPERIMENT BELOW
- /*   // Parallax Scrolling Starfield Background
-        scrollingBack += 0.1f;
-        scrollingMid += 0.5f;
-        scrollingFore += 1.0f;
-    
-     // NOTE: Texture is scaled twice its size, so it sould be considered on scrolling
-        if (scrollingBack <= -background.height*2) scrollingBack = 0;
-        if (scrollingMid <= -midground.height*2) scrollingMid = 0;
-        if (scrollingFore <= -foreground.height*2) scrollingFore = 0;
-    
-    
-
- // Draw background image twice
-            // NOTE: Texture is scaled twice its size
-            DrawTextureEx(background, (Vector2){ -20, scrollingBack }, 0.0f, 2.0f, WHITE);
-            DrawTextureEx(background, (Vector2){ -20, background.height*2 + scrollingBack }, 0.0f, 2.0f, WHITE);
-
-            // Draw midground image twice
-            DrawTextureEx(midground, (Vector2){ -20, scrollingMid }, 0.0f, 2.0f, WHITE);
-            DrawTextureEx(midground, (Vector2){ -20, midground.height*2 + scrollingMid }, 0.0f, 2.0f, WHITE);
-
-            // Draw foreground image twice
-            DrawTextureEx(foreground, (Vector2){ -70, scrollingFore }, 0.0f, 2.0f, WHITE);
-            DrawTextureEx(foreground, (Vector2){ -70, foreground.height*2 + scrollingFore }, 0.0f, 2.0f, WHITE);
-*/
-
- // Update
-       /* //----------------------------------------------------------------------------------
-        scrollingBack += 0.1f;
-        scrollingMid -= 0.5f;
-        scrollingFore -= 1.0f;
-
-        // NOTE: Texture is scaled twice its size, so it sould be considered on scrolling
-        if (scrollingBack <= -background.height*2) scrollingBack = 0;
-        if (scrollingMid <= -midground.width*2) scrollingMid = 0;
-        if (scrollingFore <= -foreground.width*2) scrollingFore = 0;
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
-
-            
-        
-
-            Draw background image twice
-            // NOTE: Texture is scaled twice its size
-            DrawTextureEx(background, (Vector2){ 20, scrollingBack }, 0.0f, 2.0f, WHITE);
-            DrawTextureEx(background, (Vector2){ 20, background.height*2 + scrollingBack }, 0.0f, 2.0f, WHITE);
-
-            Draw midground image twice
-            DrawTextureEx(midground, (Vector2){ scrollingMid, 20 }, 0.0f, 2.0f, WHITE);
-            DrawTextureEx(midground, (Vector2){ midground.width*2 + scrollingMid, 20 }, 0.0f, 2.0f, WHITE);
-
-            Draw foreground image twice
-            DrawTextureEx(foreground, (Vector2){ scrollingFore, 70 }, 0.0f, 2.0f, WHITE);
-            DrawTextureEx(foreground, (Vector2){ foreground.width*2 + scrollingFore, 70 }, 0.0f, 2.0f, WHITE);
-*/
-// =====================================================================================================PARALLAX EXPERIMENT ABOVE
